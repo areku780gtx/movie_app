@@ -57,7 +57,7 @@ return response()->json($review);
     {
         //
 
-        $review->load('user', 'comments', 'comments.user');
+        $review->load('user', 'comments.user');
         return response()->json($review);
     }
 
