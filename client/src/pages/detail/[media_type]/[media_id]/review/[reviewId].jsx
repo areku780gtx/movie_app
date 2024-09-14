@@ -11,13 +11,18 @@ import { CardContent } from '@mui/material'
 import { Container } from '@mui/material'
 import { useState } from 'react'
 import CommentList from '@/components/CommentList'
-const Review = () => {
+import { Button } from '@mui/material'
+import { TextField } from '@mui/material'
+import { Box } from '@mui/material'
+const ReviewDetail = () => {
     const [review, setReview] = useState(null)
-    const [comment, setComments] = useState([])
+    const [comments, setComments] = useState([])
+    const [content, setContent] = useState('')
     const router = useRouter()
     const { reviewId } = router.query
     console.log(reviewId)
     useEffect(() => {
+        if (!reviewId) return
         const fetchReview = async () => {
             try {
                 const response = await laravelAxios.get(
@@ -26,12 +31,37 @@ const Review = () => {
                 console.log(response.data)
                 setReview(response.data)
                 setComments(response.data.comments)
+                console.log(comments)
             } catch (error) {
                 console.log(error)
             }
         }
         fetchReview()
     }, [reviewId])
+    const handleChange = e => {
+        setContent(e.target.value)
+        console.log(content)
+    }
+    const handleCommentAdd = async e => {
+        e.preventDefault()
+        const trimmedContent = content.trim()
+        if (!trimmedContent) {
+            return
+        }
+        try {
+            const response = await laravelAxios.post(`/api/comments`, {
+                content: trimmedContent,
+                review_id: reviewId,
+            })
+            console.log(response.data)
+            const newComment = response.data
+            setComments([...comments, newComment])
+            setContent('')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <AppLayout
             header={
@@ -43,7 +73,7 @@ const Review = () => {
                 <title>Laravel - Home</title>
             </Head>
             <Container sx={{ py: 2 }}>
-                {review && (
+                {review ? (
                     <>
                         <Card sx={{ minHeight: 2 }}>
                             <CardContent>
@@ -66,7 +96,52 @@ const Review = () => {
                                 </Typography>
                             </CardContent>
                         </Card>
+
+                        <Box
+                            onSubmit={handleCommentAdd}
+                            component="form"
+                            noValidate
+                            autoComplete="off"
+                            p={2}
+                            sx={{
+                                mb: 2,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                bgcolor: 'black',
+                            }}>
+                            <TextField
+                                inputProps={{ maxLength: 200 }}
+                                error={content.length > 200}
+                                helperText={
+                                    content.length > 200
+                                        ? '200文字を超えています'
+                                        : ''
+                                }
+                                fullWidth
+                                label="comment"
+                                variant="outlined"
+                                value={content}
+                                onChange={handleChange}
+                                sx={{ mr: 1, flexGrow: 1 }}
+                            />
+                            <Button
+                                variant="contained"
+                                type="submit"
+                                style={{
+                                    backgroundColor: '#1976d2',
+                                    color: '#fff',
+                                }}>
+                                送信
+                            </Button>
+                        </Box>
+
+                        <CommentList
+                            comments={comments}
+                            setComments={setComments}
+                        />
                     </>
+                ) : (
+                    <div>読み込み中...</div>
                 )}
             </Container>
 
@@ -77,4 +152,4 @@ const Review = () => {
     )
 }
 
-export default Review
+export default ReviewDetail

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
 {
@@ -29,7 +31,32 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         //
-    }
+
+        $validated = $request->validate([
+            'content' => 'required|string|max:200',
+            'review_id' => 'required|integer|exists:reviews,id',
+        ]);
+
+   $comment = Comment::create([
+        'content' => $validated['content'],
+        'review_id' => $validated['review_id'],
+        'user_id' => Auth::user()->id,
+   ]);
+
+
+
+
+$comment->load('user');
+
+return response()->json($comment);
+
+   }
+
+
+
+
+
+ 
 
     /**
      * Display the specified resource.
@@ -60,6 +87,13 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+
+
+        $comment->delete();
+
+return response()->json(['message' => 'コメントが削除されました。']);
+
+
+
     }
 }
