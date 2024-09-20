@@ -5,7 +5,7 @@ import laravelAxios from '../lib/laravelAxios'
 const CommentList = ({ comments, setComments }) => {
     const [editMode, setEditMode] = useState(null)
     const [editedContent, setEditedContent] = useState('')
-
+    console.log(comments)
     const handleDelete = async commentId => {
         try {
             if (!laravelAxios) {
@@ -41,6 +41,18 @@ const CommentList = ({ comments, setComments }) => {
                 `/api/comments/${commentId}`,
                 { content: editedContent },
             )
+
+            console.log(response.data)
+            const updatedComment = response.data
+            const updatedComments = comments.map(comment => {
+                if (comment.id === commentId) {
+                    return { ...comment, content: response.data.content }
+                }
+                return comment
+            })
+            setComments(updatedComments)
+            console.log(updatedComments)
+            setEditMode(null)
         } catch (error) {
             console.log(error)
         }

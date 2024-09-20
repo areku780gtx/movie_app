@@ -10,6 +10,9 @@ import Tooltip from '@mui/material/Tooltip'
 import Fab from '@mui/material/Fab'
 import Button from '@mui/material/Button'
 import StarIcon from '@mui/icons-material/Star'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import IconButton from '@mui/material/IconButton'
+
 import {
     Box,
     Grid,
@@ -36,6 +39,8 @@ const Detail = ({ detail, media_type, media_id }) => {
     const [editMode, setEditMode] = useState(null)
     const [editedRating, setEditedRating] = useState(null)
     const [editedContent, setEditedContent] = useState('')
+    const [isFavorite, setIsFavorite] = useState(false)
+
     const { user } = useAuth({ middleware: 'auth' })
 
     const handleOpen = () => setOpen(true)
@@ -91,17 +96,36 @@ const Detail = ({ detail, media_type, media_id }) => {
         setEditedRating(review.rating)
         setEditedContent(review.content)
     }
+    const handleToggleFavorite = async () => {
+        console.log('お気に入りに登録')
+        try {
+            const response = await laravelAxios.post('/api/favorites/', {
+                media_type: media_type,
+                media_id: media_id,
+            })
+            console.log(response.data)
+            console.log('お気に入りに登録成功')
+            setIsFavorite(response.data.status === 'added')
+        } catch (error) {
+            console.log('お気に入りエラー', error)
+        }
+    }
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const response = await laravelAxios.get(
-                    `/api/reviews/${media_type}/${media_id}`,
-                )
+                const [reviewResponse, favoriteResponse] = await Promise.all([
+                    laravelAxios.get(`/api/reviews/${media_type}/${media_id}`),
+                    laravelAxios.get(`/api/favorites/status`, {
+                        params: { media_type: media_type, media_id: media_id },
+                    }),
+                ])
 
-                const fetchReviews = response.data
+                const fetchReviews = reviewResponse.data
 
                 setReviews(fetchReviews)
                 updateAverageRating(fetchReviews)
+
+                console.log(favoriteResponse)
             } catch (error) {
                 console.log('レビュー取得エラー', error)
             }
@@ -257,6 +281,16 @@ const Detail = ({ detail, media_type, media_id }) => {
                             <Typography variant="h6" paragraph>
                                 {detail.overview}
                             </Typography>
+
+                            <IconButton
+                                onClick={handleToggleFavorite}
+                                style={{
+                                    color: isFavorite ? 'red' : 'white',
+                                    backgroundColor: 'black',
+                                }}>
+                                <FavoriteIcon />
+                            </IconButton>
+
                             <Box
                                 gap={2}
                                 sx={{

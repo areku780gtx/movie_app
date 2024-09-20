@@ -79,7 +79,29 @@ return response()->json($comment);
      */
     public function update(Request $request, Comment $comment)
     {
-        //
+    
+
+if(Auth::user()->id !== $comment->user_id){
+    return response()->json(['message' => '権限がありません。'], 401       );
+}
+
+$validated = $request->validate([
+    'content' => 'required|string|max:200',
+]);
+
+$comment->update([
+    'content' => $validated['content'],
+]);
+return response()->json($comment);
+
+
+
+
+
+
+
+
+
     }
 
     /**
