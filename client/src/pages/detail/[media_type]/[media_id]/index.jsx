@@ -126,6 +126,7 @@ const Detail = ({ detail, media_type, media_id }) => {
                 updateAverageRating(fetchReviews)
 
                 console.log(favoriteResponse)
+                setIsFavorite(favoriteResponse.data)
             } catch (error) {
                 console.log('レビュー取得エラー', error)
             }

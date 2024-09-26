@@ -10,6 +10,7 @@ import Sidebar from '@/components/Sidebar'
 import MediaCard from '@/components/MediaCard'
 import { Grid } from '@mui/material'
 import Typography from '@mui/material/Typography'
+import { Tune } from '@mui/icons-material'
 const Search = () => {
     const [category, setCategory] = useState('all')
     const [results, setResults] = useState([])
@@ -63,7 +64,11 @@ const Search = () => {
                 ) : filteredResults.length > 0 ? (
                     <Grid container spacing={3}>
                         {filteredResults.map(media => (
-                            <MediaCard item={media} key={media.id} />
+                            <MediaCard
+                                item={media}
+                                key={media.id}
+                                isContent={true}
+                            />
                         ))}
                     </Grid>
                 ) : (

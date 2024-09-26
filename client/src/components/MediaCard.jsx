@@ -8,7 +8,7 @@ import {
     Grid,
 } from '@mui/material'
 import Link from 'next/link'
-function MediaCard({ item }) {
+function MediaCard({ item, isContent }) {
     const imagePath = item.poster_path
         ? `https://image.tmdb.org/t/p/original//${item.poster_path}`
         : 'media_poster_img/NO IMAGE.png'
@@ -22,16 +22,21 @@ function MediaCard({ item }) {
                             sx={{ aspectRatio: '2/3' }}
                             image={imagePath}
                         />
-                        <CardContent>
-                            <Typography variant="h6" component={'div'} noWrap>
-                                {item.title || item.name}
-                            </Typography>
-                            <Typography
-                                variant="subtitle1"
-                                color="text.secondary">
-                                {item.release_date || item.first_air_date}
-                            </Typography>
-                        </CardContent>
+                        {isContent && (
+                            <CardContent>
+                                <Typography
+                                    variant="h6"
+                                    component={'div'}
+                                    noWrap>
+                                    {item.title || item.name}
+                                </Typography>
+                                <Typography
+                                    variant="subtitle1"
+                                    color="text.secondary">
+                                    {item.release_date || item.first_air_date}
+                                </Typography>
+                            </CardContent>
+                        )}
                     </Link>
                 </CardActionArea>
             </Card>
